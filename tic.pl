@@ -11,16 +11,14 @@ run(Board, N, Depth):-
 	run(BoardAfterAI, N, Depth).
 
 user_turn(Board, Result):-
-	get_single_char(XR),
-	get_single_char(YR),
-	X is XR - "0",
-	Y is YR - "0",
+	read(X),
+	read(Y),
 	human(H),
 	update_board(Board, X, Y, H, Result).
 
 ai_turn(Board, N, Depth, Result):-
 	moves(Board, [[Result, X, Y]|_], N),
-	print(X),
+	format(X),
 	print(Y),
 	flush_output.
 
@@ -63,6 +61,13 @@ best([Pos1|PosList], BestPos, BestVal) :-
 	best(PosList, Pos2, Val2),
 	betterof(Pos1, Val1, Pos2, Val2, BestPos, BestVal).
 
-betterof(Pos0, Val0, Pos1, Val1, Pos0, Val0).
+betterof(Pos0, Val0, Pos1, Val1, Pos0, Val0) :-
+	min_to_move(Pos0),
+	Val0 > Val1, !
+	;
+	max_to_move(Pos0),
+	Val0 < Val1, !.
+
+betterof(Pos0, Val0, Pos1, Val1, Pos1, Val1).
 
 :- main.
