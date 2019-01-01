@@ -32,8 +32,8 @@ class GameWindow(object):
 
     def __init__(self, n, level):
         self.model = GameModel(n)
-        args = [r"C:\Program Files\swipl\bin\swipl.exe", PROLOG, str(level), str(n)]
-        self.prolog = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        args = [r"swipl", PROLOG, str(level), str(n)]
+        self.prolog = Popen(args, stdin=PIPE, stdout=PIPE)
         self._buttons = {}
         for x, y in self.model:
             button = Button(self.ROOT, command=lambda x=x, y=y: self._button_click(x, y), font=self.FONT)
@@ -58,6 +58,7 @@ class GameWindow(object):
         over = self._gameover()
         if over:
             showinfo("Game Over", over + " wins")
+            self.prolog.terminate()
             exit()
 
     VISUALIZE = {
@@ -111,7 +112,7 @@ class GameWindow(object):
 def parse_args():
     parser = argparse.ArgumentParser(description="Run a 4 in a row game, with ai written in prolog")
     parser.add_argument("--depth", help="Set the maximum depth search for the ai. This value must be at least 1",
-                        default=1, type=int)
+                        default=2, type=int)
     parser.add_argument("--n", help="Set the maximum depth search for the ai. This value must be at least 4",
                         default=4, type=int)
     args = parser.parse_args()
@@ -129,7 +130,8 @@ def main():
     n, level = parse_args()
     game = GameWindow(n, level)
     game.play()
-
+    game.prolog.terminate()
+    print("bye")
 
 if __name__ == '__main__':
     main()
