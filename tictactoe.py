@@ -112,7 +112,7 @@ class GameWindow(object):
 def parse_args():
     parser = argparse.ArgumentParser(description="Run a 4 in a row game, with ai written in prolog")
     parser.add_argument("--depth", help="Set the maximum depth search for the ai. This value must be at least 1",
-                        default=2, type=int)
+                        default=1, type=int)
     parser.add_argument("--n", help="Set the maximum depth search for the ai. This value must be at least 4",
                         default=4, type=int)
     args = parser.parse_args()

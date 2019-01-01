@@ -7,7 +7,7 @@ main:-
 
 run(Board, N, Depth):-
 	user_turn(Board, BoardAfterUser),
-	ai_turn(BoardAfterUser, N, Depth, BoardAfterAI),
+	ai_turn(BoardAfterUser, Depth, BoardAfterAI),
 	run(BoardAfterAI, N, Depth).
 
 user_turn(Board, Result):-
@@ -16,7 +16,7 @@ user_turn(Board, Result):-
 	human(H),
 	board_update(Board, X, Y, H, Result).
 
-ai_turn(Board, N, Depth, Result):-
+ai_turn(Board, Depth, Result):-
 	human(H),
 	%	moves([Board, 0, 0, H], [[Result, X, Y, _]|_]),
 	minimax([Board, 0, 0, H], [Result, X, Y, _], V, Depth),
@@ -26,7 +26,7 @@ ai_turn(Board, N, Depth, Result):-
 	flush_output.
 
 moves([Board, _, _, P], PosList):-
-	%	\+ is_player_won(Board, P),
+	\+ is_player_won(Board, P),
 	oponent(P, O),
 	length(Board, N),
 	T is N - 1,
@@ -64,29 +64,34 @@ oponent(x, o).
 oponent(o, x).
 
 is_player_won(Board, P):-
+	all_seq(Board, [P, P, P, P]),
+	!.
+
+all_seq(Board, Seq):-
 	length(Board, N),
 	M is N - 1,
 	between(0, M, X),
 	between(0, M, Y),
-	board_get(Board, X, Y, P),
+	board_get(Board, X, Y, P1),
 	(
 		% horizontal
-		board_get(Board, X+1, Y, P),
-		board_get(Board, X+2, Y, P),
-		board_get(Board, X+3, Y, P),!;
+		board_get(Board, X+1, Y, P2),
+		board_get(Board, X+2, Y, P3),
+		board_get(Board, X+3, Y, P4);
 		% vertical
-		board_get(Board, X, Y+1, P),
-		board_get(Board, X, Y+2, P),
-		board_get(Board, X, Y+3, P),!;
+		board_get(Board, X, Y+1, P2),
+		board_get(Board, X, Y+2, P3),
+		board_get(Board, X, Y+3, P4);
 		% diagonal up
-		board_get(Board, X+1, Y+1, P),
-		board_get(Board, X+2, Y+2, P),
-		board_get(Board, X+3, Y+3, P),!;
+		board_get(Board, X+1, Y+1, P2),
+		board_get(Board, X+2, Y+2, P3),
+		board_get(Board, X+3, Y+3, P4);
 		% diagonal down
-		board_get(Board, X+1, Y-1, P),
-		board_get(Board, X+2, Y-2, P),
-		board_get(Board, X+3, Y-3, P)
-	).
+		board_get(Board, X+1, Y-1, P2),
+		board_get(Board, X+2, Y-2, P3),
+		board_get(Board, X+3, Y-3, P4)
+	), 
+	Seq = [P1, P2, P3, P4].
 
 
 minimax(Pos, BestSucc, Val, Depth) :-
@@ -128,7 +133,33 @@ staticval([Board|_], V):-
 		is_player_won(Board, O),
 		!,
 		V = 99;
-		V=0
+		hueristic(Board, V)
 	).
+
+hueristic(Board, V):-
+	human(H),
+	computer(C),
+	max_player_seq(Board, H, VH),
+	max_player_seq(Board, C, VC),
+	V is VC - VH.
+	
+max_player_seq(Board, P, V):-
+	empty(E),
+	(
+		all_seq(Board, Seq),
+		permutation(Seq, [P, P, P, E]),
+		V = 3,
+		!;
+		all_seq(Board, Seq),
+		permutation(Seq, [P, P, E, E]),
+		V = 2,
+		!;
+		all_seq(Board, Seq),
+		permutation(Seq, [P, E, E, E]),
+		V = 1,
+		!;
+		V = 0
+	).
+
 
 :- main.
