@@ -1,5 +1,5 @@
 """
-
+A gui program for the prolog game
 """
 import os
 import sys
@@ -33,7 +33,7 @@ class GameWindow(object):
     def __init__(self, n, level):
         self.model = GameModel(n)
         args = [r"swipl", PROLOG, str(level), str(n)]
-        self.prolog = Popen(args, stdin=PIPE, stdout=PIPE)
+        self.prolog = Popen(args, stdin=PIPE, stdout=PIPE, stderr=open(os.devnull, 'wb'))
         self._buttons = {}
         for x, y in self.model:
             button = Button(self.ROOT, command=lambda x=x, y=y: self._button_click(x, y), font=self.FONT)
